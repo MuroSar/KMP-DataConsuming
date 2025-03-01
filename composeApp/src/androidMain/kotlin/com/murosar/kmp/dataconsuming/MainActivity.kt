@@ -16,6 +16,9 @@ class MainActivity : ComponentActivity() {
             App(
                 client = remember {
                     InsultCensorClient(createHttpClient(OkHttp.create()))
+                },
+                prefs = remember {
+                    createDataStore(applicationContext)
                 }
             )
         }

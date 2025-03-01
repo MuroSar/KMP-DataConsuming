@@ -10,6 +10,9 @@ fun MainViewController() = ComposeUIViewController {
     App(
         client = remember {
             InsultCensorClient(createHttpClient(Darwin.create()))
+        },
+        prefs = remember {
+            createDataStore()
         }
     )
 }

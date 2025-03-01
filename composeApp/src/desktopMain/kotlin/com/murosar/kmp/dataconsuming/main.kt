@@ -8,6 +8,8 @@ import com.murosar.kmp.dataconsuming.networking.createHttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 
 fun main() = application {
+    val prefs = createDataStore { DATA_STORE_FILE_NAME }
+
     Window(
         onCloseRequest = ::exitApplication,
         title = "KMP-DataConsuming",
@@ -15,7 +17,8 @@ fun main() = application {
         App(
             client = remember {
                 InsultCensorClient(createHttpClient(OkHttp.create()))
-            }
+            },
+            prefs = prefs
         )
     }
 }
