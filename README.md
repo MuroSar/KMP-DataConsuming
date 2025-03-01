@@ -1,3 +1,9 @@
+Simple example of how to use Ktor and Preference DataStore
+
+See images on root project for running example (Android and Desktop)
+
+--------------------------------
+
 This is a Kotlin Multiplatform project targeting Android, iOS, Desktop.
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
