@@ -1,4 +1,4 @@
-package com.murosar.kmp.dataconsuming
+package com.murosar.kmp.dataconsuming.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore

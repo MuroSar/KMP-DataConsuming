@@ -7,7 +7,13 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+
+    // Ktor
     alias(libs.plugins.kotlin.serialization)
+
+    // Room
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -17,7 +23,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -28,16 +34,17 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
+            // Ktor
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
@@ -50,19 +57,32 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
+            // Ktor
             implementation(libs.bundles.ktor)
 
+            // Datastore
             api(libs.datastore.preferences)
             api(libs.datastore)
+
+            // Room
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         nativeMain.dependencies {
+            // Ktor
             implementation(libs.ktor.client.darwin)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
 
+            // Ktor
             implementation(libs.ktor.client.okhttp)
+        }
+
+        // Room-2
+        commonMain {
+            kotlin.srcDir("build/generated/ksp/metadata")
         }
     }
 }
@@ -96,6 +116,14 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+
+    // Room
+    ksp(libs.room.compiler)
+    add("kspAndroid", libs.room.compiler)
+    add("kspIosSimulatorArm64", libs.room.compiler)
+    add("kspIosX64", libs.room.compiler)
+    add("kspIosArm64", libs.room.compiler)
+    add("kspDesktop", libs.room.compiler)
 }
 
 compose.desktop {
@@ -108,4 +136,9 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+// Room
+room {
+    schemaDirectory("$projectDir/schemas")
 }

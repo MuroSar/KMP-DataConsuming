@@ -1,4 +1,4 @@
-package com.murosar.kmp.dataconsuming
+package com.murosar.kmp.dataconsuming.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory

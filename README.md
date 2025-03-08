@@ -1,6 +1,6 @@
 Simple example of how to use Ktor and Preference DataStore
 
-See images on root project for running example (Android and Desktop)
+See images on root project for running example (Android, iOS and Desktop)
 
 --------------------------------
 

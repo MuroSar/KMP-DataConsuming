@@ -1,12 +1,18 @@
 package com.murosar.kmp.dataconsuming
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -28,6 +34,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.murosar.kmp.dataconsuming.database.TextTransformationDao
+import com.murosar.kmp.dataconsuming.database.TextTransformationEntity
 import com.murosar.kmp.dataconsuming.networking.InsultCensorClient
 import com.murosar.kmp.dataconsuming.util.NetworkError
 import com.murosar.kmp.dataconsuming.util.onError
@@ -41,9 +49,12 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 fun App(
     client: InsultCensorClient,
-    prefs: DataStore<Preferences>
+    prefs: DataStore<Preferences>,
+    textTransformationDao: TextTransformationDao
 ) {
-    val transformations by prefs
+    val databaseTransformations by textTransformationDao.getAllTransformations().collectAsState(initial = emptyList())
+
+    val dataStoreTransformations by prefs
         .data
         .map {
             it.asMap().values.toString()
@@ -77,6 +88,7 @@ fun App(
         ) {
             Column(
                 modifier = Modifier
+                    .verticalScroll(rememberScrollState())
                     .fillMaxSize()
                     .weight(1f)
                     .background(Color.LightGray),
@@ -84,12 +96,7 @@ fun App(
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
             ) {
                 Text(
-                    text = "Example of how to call a service with Ktor",
-                    textAlign = TextAlign.Center,
-                    color = Color.Red
-                )
-                Text(
-                    text = "(The API censor insults)",
+                    text = "Example of how to call a service with Ktor\n(The API censor insults)",
                     textAlign = TextAlign.Center,
                     color = Color.Red
                 )
@@ -163,10 +170,57 @@ fun App(
                     Text("Save!")
                 }
                 Text(
-                    text = transformations,
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    text = dataStoreTransformations,
                     textAlign = TextAlign.Center,
                     color = Color.Blue
                 )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .background(Color.LightGray),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = "Example of how to use Room Database\nTap on the item to delete it from the database",
+                    textAlign = TextAlign.Center,
+                    color = Color.Red
+                )
+                Button(onClick = {
+                    scope.launch {
+                        textTransformationDao.upsert(
+                            TextTransformationEntity(
+                                uncensoredText = uncensoredText,
+                                censoredText = censoredText.orEmpty()
+                            )
+                        )
+                    }
+                }) {
+                    Text("Save!")
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                ) {
+                    items(databaseTransformations) { transformation ->
+                        Text(
+                            text = transformation.uncensoredText + " --> " + transformation.censoredText,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch {
+                                        textTransformationDao.delete(transformation)
+                                    }
+                                },
+                            textAlign = TextAlign.Center,
+                            color = Color.Blue
+                        )
+                    }
+                }
             }
         }
     }
